@@ -4,16 +4,11 @@ class Sprite {
   ImageElement img;
   int width;
   int height;
-  //int spritesPerImgWidth;
-  //int spritesPerImgHeight;
   double alpha = 1.0;
 
   static CanvasRenderingContext2D context;
   
-  Sprite(this.img, this.width, this.height) {
-    //spritesPerImgWidth = img.width ~/ width;
-    //spritesPerImgHeight = img.height ~/ height;
-  }
+  Sprite(this.img, this.width, this.height);
   
   void setAlpha(double in_alpha) {
     alpha = in_alpha;
