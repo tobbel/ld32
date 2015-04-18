@@ -18,18 +18,25 @@ class Game {
   Sprite bgSprite;
   Sprite balloonSprite;
   List<Balloon> balloons = new List<Balloon>();
+  var viewScale = new Vector2(1, 1);
   Game(this.context) {
     context.canvas.onDoubleClick.listen((onData) {
       document.onFullscreenChange.listen((onData) {
         if (context.canvas == document.fullscreenElement) {
           context.canvas.width = window.innerWidth;
           context.canvas.height = window.innerHeight;
+          viewScale = new Vector2(context.canvas.width / 600, context.canvas.height / 327);
         } else {
           context.canvas.width = 600;
           context.canvas.height = 375;
         }
       });
-      fullscreenWorkaround(context.canvas);
+      
+      if (context.canvas == document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {    
+        fullscreenWorkaround(context.canvas);
+      }
     });
     
     ImageElement img = new ImageElement(src: '../img/map.png', width: 1280, height: 800);//, context.canvas.width, context.canvas.height);

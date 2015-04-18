@@ -51,6 +51,42 @@ class UI {
     var dateMetrics = context.measureText(dateString);
     var offset = 10;
     context.fillText(dateString, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset);
+
+    // UI on lower 1/3 of screen
+    // TODO: Super temp
+    var x = 0;
+    var y = canvas.height * 2/3;
+    var w = canvas.width;
+    var h = canvas.height / 3;
+    context.fillStyle = "rgba(100, 75, 0, 1)";
+    context.fillRect(x, y, w, h);
+    context.fillStyle = "rgba(255, 255, 208, 1)";
+    context.fillRect(x + 5, y + 5, w - 10, h - 10);
+    
+    var margin = 5;
+    var spanH = h - margin * 2;
+    var spanW = w - margin * 2;
+    var startX = x + margin;
+    var startY = y + margin;
+    
+    var boxWidth = spanW / 2;
+    startX += margin;
+    boxWidth -= margin * 2;
+    startY += margin;
+    var boxHeight = (spanH / 3) - (margin / 3);
+    boxHeight -= margin;
+    context.fillStyle = "black";
+    context.fillRect(startX, startY, boxWidth, boxHeight);
+    context.fillRect(startX, startY + boxHeight + margin, boxWidth, boxHeight);
+    context.fillRect(startX, startY + boxHeight*2 + margin*2, boxWidth, boxHeight);
+    
+    startX += boxWidth + margin * 2;
+    context.fillRect(startX, startY, boxWidth, boxHeight);
+    context.fillRect(startX, startY + boxHeight + margin, boxWidth, boxHeight);
+    context.fillRect(startX, startY + boxHeight*2 + margin*2, boxWidth, boxHeight);
+
+    context.fillStyle = "rgba(100, 75, 0, 1)";
+    context.fillRect(x + boxWidth + margin * 2 + 3, y, margin - 1, h);
   }
   
   void onDateButtonClicked(MouseEvent e) {

@@ -9,6 +9,7 @@ part 'game.dart';
 part 'ui.dart';
 part 'sprite.dart';
 part 'balloon.dart';
+part 'vector2.dart';
 
 CanvasElement canvas;
 Game game;
