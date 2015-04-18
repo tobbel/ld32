@@ -1,4 +1,5 @@
 library ld32;
+
 import 'dart:html';
 import 'dart:async';
 
@@ -15,7 +16,9 @@ void main() {
 
 void init() {
   canvas = querySelector('#game');
-  game = new Game(canvas);
+  canvas.width = 600;
+  canvas.height = 375;
+  game = new Game(canvas.context2D);
   // TODO: OnResize, OnFullscreen; canvas width, height
   
   scheduleMicrotask(game.start);

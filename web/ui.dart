@@ -34,6 +34,19 @@ class UI {
     canvas.parent.append(div);
   }
   
+  void draw(double dt, double satisfaction) {
+    var context = canvas.context2D;
+    context.fillStyle = 'blue';
+    context.rect(0, 0, 10, 100);
+    context.stroke();
+    
+    context.globalAlpha = 0.5;
+    context.fillRect(0, 25, 9, 75);
+    context.globalAlpha = 1.0;
+    var height = 100 * satisfaction;
+    context.fillRect(0, 100 - height, 9, height);
+  }
+  
   void onDateButtonClicked(MouseEvent e) {
     incrementDateFunction();
   }
