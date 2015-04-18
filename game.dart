@@ -1,9 +1,28 @@
 part of ld32;
 
+class GameData {
+  double peopleSatisfaction = 1.0;
+  double leaderSatisfaction = 1.0;
+  // TODO: Date?
+}
+
 class Game {
-  CanvasElement canvas;
-  Game(this.canvas) {
+  CanvasRenderingContext2D context;
+  UI ui;
+  int year = 1941;
+  int month = 12;
+  static const int START_MONTHS_LEFT = 44;
+  int monthsLeft = START_MONTHS_LEFT;
+  int numBalloons = 0;
+  GameData gameData = new GameData();
+  Game(this.context) {
+    context.canvas.onDoubleClick.listen((onData) {
+      context.canvas.requestFullscreen();
+    });
     
+    ui = new UI(context.canvas, incrementDate, changeNumBalloons);
+    ui.setDate(year, month);
+    ui.setNumBalloons(numBalloons);
   }
   
   void start() {
@@ -11,6 +30,49 @@ class Game {
   }
   
   void update(double dt) {
-    print('update, dt: ${dt}');
+    
+    
+    // TODO: Update bound to framerate
+    draw(dt);
+  }
+  
+  void draw(double dt) {
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    double previewSatisfaction = gameData.peopleSatisfaction - 0.012 * (numBalloons + monthsLeft);
+    ui.draw(dt, previewSatisfaction);
+  }
+  
+  void changeNumBalloons(int number) {
+    numBalloons += number;
+    ui.setNumBalloons(numBalloons);
+  }
+  
+  void incrementDate() {
+    // Pass time
+    month = (month + 1) % 13;
+    if (month == 0) {
+      month++;
+      year++;
+    }
+    
+    ui.setDate(year, month);
+    monthsLeft--;
+    if (monthsLeft == 0) {
+      print('you lose, months over');
+    }
+    
+    if (month == 8 && year == 1945) {
+      print('you lose, monthsLeft: ${monthsLeft}');
+    }
+    
+    // Create balloons
+    // TODO: Tweak, less months left increases satisfaction drop
+    gameData.peopleSatisfaction -= 0.0012 * (numBalloons + monthsLeft);
+    print('peopleSatisfaction: ${gameData.peopleSatisfaction}');
+    // TODO: Leader satisfaction drops to 0 after half the time of drops with no 
+    gameData.leaderSatisfaction -= 1.0 / (START_MONTHS_LEFT / 2.0);
+    print('leaderSatisfaction: ${gameData.leaderSatisfaction}');
+    // Move balloons
+    
   }
 }
