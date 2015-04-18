@@ -18,23 +18,27 @@ class Game {
   Sprite bgSprite;
   Sprite balloonSprite;
   List<Balloon> balloons = new List<Balloon>();
-  var viewScale = new Vector2(1, 1);
+  double viewScale = 1.0;
   Game(this.context) {
+    viewScale = context.canvas.width / 600;
+    print('viewScale: ${viewScale}');
     context.canvas.onDoubleClick.listen((onData) {
       document.onFullscreenChange.listen((onData) {
         if (context.canvas == document.fullscreenElement) {
           context.canvas.width = window.innerWidth;
-          context.canvas.height = window.innerHeight;
-          viewScale = new Vector2(context.canvas.width / 600, context.canvas.height / 327);
+          viewScale = context.canvas.width / 600;
+          context.canvas.height = 327 * viewScale.toInt();
         } else {
           context.canvas.width = 600;
           context.canvas.height = 375;
+          viewScale = 1.0;
         }
       });
       
+      // TODO: Only do if nothing else was clicked (global input state?)
       if (context.canvas == document.fullscreenElement) {
         document.exitFullscreen();
-      } else {    
+      } else {
         fullscreenWorkaround(context.canvas);
       }
     });
@@ -58,9 +62,14 @@ class Game {
   void update(double dt) {
     balloons.forEach((b) {
       b.moveTimer += dt;
-      // TODO: Move over, let's say, 10 seconds
-      double fraction = b.moveTimer / 10.0;
-      b.position = b.startPosition + b.target * fraction;
+      // TODO: Move over, let's say, 5 seconds
+      double fraction = b.moveTimer / 5.0;
+      b.position = b.startPosition + (b.target - b.startPosition) * fraction;
+      b.position.y -= 100.0 * (Math.sin(fraction * Math.PI) + Math.sin(fraction * 20.0) / 10.0);
+      if (fraction >= 1.0) {
+        b.scale = 10.0;
+        
+      }
     });
     
     // TODO: Update bound to framerate, might do for this
@@ -69,11 +78,13 @@ class Game {
   
   void draw(double dt) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    
     bgSprite.draw(0, 0, context.canvas.width, context.canvas.height);
     balloons.forEach((b) {
-      b.sprite.draw(b.position.x, b.position.y, 16 * b.scale, 48 * b.scale);
+      b.sprite.draw(b.position.x, b.position.y, 8 * b.scale, 24 * b.scale);
       //balloonSprite.draw(100, 100, 16, 48);
     });
+    
     double previewSatisfaction = gameData.peopleSatisfaction - 0.012 * (numBalloons + monthsLeft);
     ui.draw(dt, previewSatisfaction);
   }
@@ -105,12 +116,14 @@ class Game {
     // TODO: Temp rand
     Math.Random rand = new Math.Random();
     balloons.clear();
-    var startPosition = new Vector2(50, 50);
+    // TODO: TEMP
+    var scale = 0.46875;
+    var startPosition = new Vector2(266, 376) * scale;
     for (int i = 0; i < numBalloons; i++) {
       Vector2 position = startPosition + new Vector2(rand.nextInt(10) - 5, rand.nextInt(10) - 5);
-      balloons.add(new Balloon(balloonSprite, position, rand.nextDouble() * 0.8));
+      balloons.add(new Balloon(balloonSprite, position, 2.0 + rand.nextDouble() * 0.8));
       // TODO: Temp
-      balloons[i].target = new Vector2(500, 100);
+      balloons[i].target = new Vector2(1000, 376) * scale;
     }
     
     // TODO: Tweak, less months left increases satisfaction drop
@@ -142,5 +155,18 @@ class Game {
         }
       }
     }
+  }
+  
+  bool isDown = false;
+  void mouseDown(Vector2 position) {
+    if (!isDown)
+    {
+      isDown = true;  
+      ui.mouseDown(position);
+    }
+  }
+  
+  void mouseUp(Vector2 position) {
+    isDown = false;
   }
 }

@@ -1,5 +1,13 @@
 part of ld32;
 
+class Button {
+  Vector2 position;
+  Vector2 size;
+  String text;
+  Function onClick;
+  Button(this.position, this.size, this.text, this.onClick);
+}
+
 class UI {
   CanvasElement canvas;
   Function incrementDateFunction;
@@ -34,6 +42,15 @@ class UI {
     canvas.parent.append(div);
   }
   
+  List<Button> buttons = new List<Button>();
+//  void AddButton(int x, int y, int width, int height, String text, Function onClick) {
+//    buttons.add(new Button(new Vector2(x, y), new Vector2(width, height), text, onClick));
+//  }
+  
+  void AddButton(Vector2 position, Vector2 size, String text, Function onClick) {
+    buttons.add(new Button(position, size, text, onClick));
+  }
+  bool button = false;
   void draw(double dt, double satisfaction) {
     var context = canvas.context2D;
     context.fillStyle = 'blue';
@@ -76,7 +93,29 @@ class UI {
     var boxHeight = (spanH / 3) - (margin / 3);
     boxHeight -= margin;
     context.fillStyle = "black";
-    context.fillRect(startX, startY, boxWidth, boxHeight);
+    //context.fillRect(startX, startY, boxWidth, boxHeight / 2 - margin / 2);
+
+    context.font = "12px Roboto";
+    var balloonText = 'Number of balloons: ' + numBalloonsLabel.text;
+    var metrics = context.measureText(balloonText);
+    
+    context.fillText(balloonText, startX, startY + metrics.fontBoundingBoxAscent);
+    // Balloon buttons
+    //context.fillRect(startX, startY + boxHeight / 2, boxWidth/5, boxHeight / 2);
+//    if (!button) {
+//      button = true;
+//      AddButton(new Vector2(startX, startY + boxHeight / 2), new Vector2(boxWidth / 5, boxHeight / 2), "Less", increaseBalloonCount);
+//    }
+//    
+//    buttons.forEach((b){
+//      context.fillStyle = "rgba(100, 75, 0, 1)";
+//      context.fillRect(b.position.x, b.position.y, b.size.x, b.size.y);
+//      context.fillStyle = "rgba(255, 255, 208, 1)";
+//      context.fillRect(b.position.x + 2, b.position.y + 2, b.size.x - 4, b.size.y - 4);
+//      context.fillStyle = "black";
+//      context.fillText(b.text, b.position.x + 2, b.position.y + metrics.fontBoundingBoxAscent + 1);
+//    });
+    
     context.fillRect(startX, startY + boxHeight + margin, boxWidth, boxHeight);
     context.fillRect(startX, startY + boxHeight*2 + margin*2, boxWidth, boxHeight);
     
@@ -87,6 +126,19 @@ class UI {
 
     context.fillStyle = "rgba(100, 75, 0, 1)";
     context.fillRect(x + boxWidth + margin * 2 + 3, y, margin - 1, h);
+  }
+  
+  void increaseBalloonCount() {
+
+    numBalloonsChangedFunction(1);
+  }
+  
+  void mouseDown(Vector2 position) {
+//    buttons.forEach((b){
+//      if (position.x > b.position.x && position.y > b.position.y && position.x < (b.position.x + b.size.x) && position.y < (b.position.y + b.size.y)) {
+//        b.onClick();
+//      }
+//    });
   }
   
   void onDateButtonClicked(MouseEvent e) {

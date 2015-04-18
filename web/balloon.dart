@@ -6,7 +6,7 @@ class Balloon {
   Vector2 startPosition;
   double scale;
   Balloon(this.sprite, this.position, this.scale) {
-    startPosition = position;
+    startPosition = new Vector2(position.x, position.y);
   }
   
   // TODO: Temp stuff
