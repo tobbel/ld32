@@ -9,5 +9,6 @@ html, body {
 }
 
 canvas {
+  /* TODO: No border, center on width, consider fill window*/
   border: 1px dotted;
 }

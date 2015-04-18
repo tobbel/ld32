@@ -17,6 +17,15 @@ class Game {
   GameData gameData = new GameData();
   Game(this.context) {
     context.canvas.onDoubleClick.listen((onData) {
+      document.onFullscreenChange.listen((onData) {
+        if (context.canvas == document.fullscreenElement) {
+          context.canvas.width = window.innerWidth;
+          context.canvas.height = window.innerHeight;
+        } else {
+          context.canvas.width = 600;
+          context.canvas.height = 375;
+        }
+      });
       fullscreenWorkaround(context.canvas);
     });
     
