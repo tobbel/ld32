@@ -45,6 +45,12 @@ class UI {
     context.globalAlpha = 1.0;
     var height = 100 * satisfaction;
     context.fillRect(0, 100 - height, 9, height);
+    
+    context.fillStyle = "black";
+    context.font = "24px Roboto";
+    var dateMetrics = context.measureText(dateString);
+    var offset = 10;
+    context.fillText(dateString, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset);
   }
   
   void onDateButtonClicked(MouseEvent e) {
@@ -62,7 +68,7 @@ class UI {
   void setNumBalloons(int numBalloons) {
     numBalloonsLabel.text = numBalloons.toString();
   }
-  
+  String dateString = '';
   void setDate(int year, int month) {
     var monthString = '';
     switch (month) {
@@ -107,5 +113,6 @@ class UI {
         break;
     }
     dateLabel.text = monthString + ' ' + year.toString();
+    dateString = monthString + ' ' + year.toString();
   }
 }

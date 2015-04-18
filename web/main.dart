@@ -3,9 +3,12 @@ library ld32;
 import 'dart:html';
 import 'dart:async';
 import 'dart:js';
+import 'dart:math' as Math;
 
 part 'game.dart';
 part 'ui.dart';
+part 'sprite.dart';
+part 'balloon.dart';
 
 CanvasElement canvas;
 Game game;

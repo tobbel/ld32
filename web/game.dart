@@ -15,6 +15,9 @@ class Game {
   int monthsLeft = START_MONTHS_LEFT;
   int numBalloons = 0;
   GameData gameData = new GameData();
+  Sprite bgSprite;
+  Sprite balloonSprite;
+  List<Balloon> balloons = new List<Balloon>();
   Game(this.context) {
     context.canvas.onDoubleClick.listen((onData) {
       document.onFullscreenChange.listen((onData) {
@@ -29,7 +32,14 @@ class Game {
       fullscreenWorkaround(context.canvas);
     });
     
+    ImageElement img = new ImageElement(src: '../img/map.png', width: 1280, height: 800);//, context.canvas.width, context.canvas.height);
+    bgSprite = new Sprite(img, img.width, img.height);
+    ImageElement balloonImg = new ImageElement(src: '../img/balloon.png', width: 256, height: 768);
+    balloonSprite = new Sprite(balloonImg, img.width, img.height);
+    
+    Sprite.context = context;
     ui = new UI(context.canvas, incrementDate, changeNumBalloons);
+    // TODO: UI.SetListenerThis(this); UI.SetListenerThat(that), etc.
     ui.setDate(year, month);
     ui.setNumBalloons(numBalloons);
   }
@@ -39,14 +49,24 @@ class Game {
   }
   
   void update(double dt) {
+    balloons.forEach((b) {
+      b.moveTimer += dt;
+      // TODO: Move over, let's say, 10 seconds
+      double fraction = b.moveTimer / 10.0;
+      b.position = b.startPosition + b.target * fraction;
+    });
     
-    
-    // TODO: Update bound to framerate
+    // TODO: Update bound to framerate, might do for this
     draw(dt);
   }
   
   void draw(double dt) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    bgSprite.draw(0, 0, context.canvas.width, context.canvas.height);
+    balloons.forEach((b) {
+      b.sprite.draw(b.position.x, b.position.y, 16 * b.scale, 48 * b.scale);
+      //balloonSprite.draw(100, 100, 16, 48);
+    });
     double previewSatisfaction = gameData.peopleSatisfaction - 0.012 * (numBalloons + monthsLeft);
     ui.draw(dt, previewSatisfaction);
   }
@@ -75,6 +95,17 @@ class Game {
     }
     
     // Create balloons
+    // TODO: Temp rand
+    Math.Random rand = new Math.Random();
+    balloons.clear();
+    var startPosition = new Vector2(50, 50);
+    for (int i = 0; i < numBalloons; i++) {
+      Vector2 position = startPosition + new Vector2(rand.nextInt(10) - 5, rand.nextInt(10) - 5);
+      balloons.add(new Balloon(balloonSprite, position, rand.nextDouble() * 0.8));
+      // TODO: Temp
+      balloons[i].target = new Vector2(500, 100);
+    }
+    
     // TODO: Tweak, less months left increases satisfaction drop
     gameData.peopleSatisfaction -= 0.0012 * (numBalloons + monthsLeft);
     print('peopleSatisfaction: ${gameData.peopleSatisfaction}');
