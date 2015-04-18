@@ -17,7 +17,7 @@ class Game {
   GameData gameData = new GameData();
   Game(this.context) {
     context.canvas.onDoubleClick.listen((onData) {
-      context.canvas.requestFullscreen();
+      fullscreenWorkaround(context.canvas);
     });
     
     ui = new UI(context.canvas, incrementDate, changeNumBalloons);
@@ -74,5 +74,26 @@ class Game {
     print('leaderSatisfaction: ${gameData.leaderSatisfaction}');
     // Move balloons
     
+  }
+  
+  void fullscreenWorkaround(Element element) {
+    var elem = new JsObject.fromBrowserObject(element);
+
+    if (elem.hasProperty("requestFullscreen")) {
+      elem.callMethod("requestFullscreen");
+    }
+    else {
+      List<String> vendors = ['moz', 'webkit', 'ms', 'o'];
+      for (String vendor in vendors) {
+        String vendorFullscreen = "${vendor}RequestFullscreen";
+        if (vendor == 'moz') {
+          vendorFullscreen = "${vendor}RequestFullScreen";
+        }
+        if (elem.hasProperty(vendorFullscreen)) {
+          elem.callMethod(vendorFullscreen);
+          return;
+        }
+      }
+    }
   }
 }

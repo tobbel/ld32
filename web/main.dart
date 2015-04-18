@@ -2,6 +2,7 @@ library ld32;
 
 import 'dart:html';
 import 'dart:async';
+import 'dart:js';
 
 part 'game.dart';
 part 'ui.dart';
