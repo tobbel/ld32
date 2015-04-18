@@ -1,0 +1,7 @@
+name: ld32
+version: 0.0.1
+description: An entry to the Ludum Dare compo.
+environment:
+  sdk: '>=1.0.0 <2.0.0'
+dependencies:
+  browser: any
