@@ -3,6 +3,7 @@ import 'dart:html';
 import 'dart:async';
 
 part 'game.dart';
+part 'ui.dart';
 
 CanvasElement canvas;
 Game game;
