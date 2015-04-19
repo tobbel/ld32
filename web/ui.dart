@@ -10,23 +10,25 @@ class Button {
 
 class UI {
   CanvasElement canvas;
-  Function incrementDateFunction;
-  Function numBalloonsChangedFunction;
+  //Function incrementDateFunction;
+  //Function numBalloonsChangedFunction;
+  GameData gameData;
+  Function callbackFunction;
   LabelElement dateLabel;
   LabelElement numBalloonsLabel;
-  UI(this.canvas, this.incrementDateFunction, this.numBalloonsChangedFunction) {
+  UI(this.canvas, this.callbackFunction, this.gameData) {// this.incrementDateFunction, this.numBalloonsChangedFunction) {
     DivElement div = new DivElement();
     
     // Test buttons
     ButtonElement leftButton = new ButtonElement();
     leftButton.text = '<';
-    leftButton.onClick.listen(leftClick);
+    //leftButton.onClick.listen(leftClick);
     div.append(leftButton);
     numBalloonsLabel = new LabelElement();
     div.append(numBalloonsLabel);
     ButtonElement rightButton = new ButtonElement();
     rightButton.text = '>';
-    rightButton.onClick.listen(rightClick);
+    //rightButton.onClick.listen(rightClick);
     div.append(rightButton);
     
     div.append(new ParagraphElement());
@@ -96,7 +98,7 @@ class UI {
     //context.fillRect(startX, startY, boxWidth, boxHeight / 2 - margin / 2);
 
     context.font = "12px Roboto";
-    var balloonText = 'Number of balloons: ' + numBalloonsLabel.text;
+    var balloonText = 'Balloons to create this month: ' + numBalloonsLabel.text;
     var metrics = context.measureText(balloonText);
     
     context.fillText(balloonText, startX, startY + metrics.fontBoundingBoxAscent);
@@ -130,7 +132,7 @@ class UI {
   
   void increaseBalloonCount() {
 
-    numBalloonsChangedFunction(1);
+  //  numBalloonsChangedFunction(1);
   }
   
   void mouseDown(Vector2 position) {
@@ -142,17 +144,18 @@ class UI {
   }
   
   void onDateButtonClicked(MouseEvent e) {
-    incrementDateFunction();
+    callbackFunction('date');
+    //incrementDateFunction();
   }
   
-  void leftClick(MouseEvent e) {
-    numBalloonsChangedFunction(-1);
-  }
-  
-  void rightClick(MouseEvent e) {
-    numBalloonsChangedFunction(1);
-  }
-  
+//  void leftClick(MouseEvent e) {
+//    numBalloonsChangedFunction(-1);
+//  }
+//  
+//  void rightClick(MouseEvent e) {
+//    numBalloonsChangedFunction(1);
+//  }
+//  
   void setNumBalloons(int numBalloons) {
     numBalloonsLabel.text = numBalloons.toString();
   }

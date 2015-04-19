@@ -1,74 +1,67 @@
 part of ld32;
 
+// Things that need to be passed to UI
 class GameData {
   double peopleSatisfaction = 1.0;
   double leaderSatisfaction = 1.0;
-  // TODO: Date?
+  double terrorLevel = 0.0;  
+  // TODO: Date? Balloons?
 }
 
 class Game {
+  static const int canvasWidth = 1280;
+  static const int canvasHeight = 720;
   CanvasRenderingContext2D context;
-  UI ui;
   int year = 1941;
   int month = 12;
   static const int START_MONTHS_LEFT = 44;
   int monthsLeft = START_MONTHS_LEFT;
-  int numBalloons = 0;
-  GameData gameData = new GameData();
+  int balloonsToLaunch = 0;
+  int balloonsToCreate = 0;
   Sprite bgSprite;
   Sprite balloonSprite;
+  
+  Vector2 launchAreaPosition = new Vector2(150, 285);
+  Vector2 launchAreaSize = new Vector2(24, 24);
+  
+  Vector2 targetAreaPosition = new Vector2(900, 250);
+  Vector2 targetAreaSize = new Vector2(341, 175);
+  
+  GameData gameData;
+  UI ui;
   List<Balloon> balloons = new List<Balloon>();
-  double viewScale = 1.0;
+  Math.Random rand = new Math.Random();
+  
   Game(this.context) {
-    viewScale = context.canvas.width / 600;
-    print('viewScale: ${viewScale}');
-    context.canvas.onDoubleClick.listen((onData) {
-      document.onFullscreenChange.listen((onData) {
-        if (context.canvas == document.fullscreenElement) {
-          context.canvas.width = window.innerWidth;
-          viewScale = context.canvas.width / 600;
-          context.canvas.height = 327 * viewScale.toInt();
-        } else {
-          context.canvas.width = 600;
-          context.canvas.height = 375;
-          viewScale = 1.0;
-        }
-      });
-      
-      // TODO: Only do if nothing else was clicked (global input state?)
-      if (context.canvas == document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        fullscreenWorkaround(context.canvas);
-      }
-    });
+    context.canvas.width = canvasWidth;
+    context.canvas.height = canvasHeight;
     
     ImageElement img = new ImageElement(src: '../img/map.png', width: 1280, height: 800);//, context.canvas.width, context.canvas.height);
     bgSprite = new Sprite(img, img.width, img.height);
-    ImageElement balloonImg = new ImageElement(src: '../img/balloon.png', width: 256, height: 768);
+    ImageElement balloonImg = new ImageElement(src: '../img/balloon3.png', width: 64, height: 128);
     balloonSprite = new Sprite(balloonImg, img.width, img.height);
     
     Sprite.context = context;
-    ui = new UI(context.canvas, incrementDate, changeNumBalloons);
-    // TODO: UI.SetListenerThis(this); UI.SetListenerThat(that), etc.
+    
+    gameData = new GameData();
+    ui = new UI(context.canvas, uiCallback, gameData);
     ui.setDate(year, month);
-    ui.setNumBalloons(numBalloons);
+    ui.setNumBalloons(balloonsToCreate);
   }
   
   void start() {
-    print('start');
+    // Setup UI
+    // Setup starting conditions
   }
   
   void update(double dt) {
     balloons.forEach((b) {
       b.moveTimer += dt;
-      // TODO: Move over, let's say, 5 seconds
       double fraction = b.moveTimer / 5.0;
       b.position = b.startPosition + (b.target - b.startPosition) * fraction;
       b.position.y -= 100.0 * (Math.sin(fraction * Math.PI) + Math.sin(fraction * 20.0) / 10.0);
       if (fraction >= 1.0) {
         b.scale = 10.0;
-        
       }
     });
     
@@ -76,25 +69,81 @@ class Game {
     draw(dt);
   }
   
+  void uiCallback(String type) {
+    
+  }
+  
+  void keyPress(KeyboardEvent e) {
+    print(e.keyCode.toString());
+    if (e.keyCode == 113) {
+      // Increase balloons
+      balloonsToCreate++;
+      ui.setNumBalloons(balloonsToCreate);
+    }
+    if (e.keyCode == 97) {
+      // Decrease balloons
+      balloonsToCreate--;
+      ui.setNumBalloons(balloonsToCreate);
+    }
+    
+    if (e.keyCode == 32) {
+      // Try to pass month
+      incrementDate();
+    }
+  }
+  
   void draw(double dt) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     
-    bgSprite.draw(0, 0, context.canvas.width, context.canvas.height);
+    // Fill BG
+    context.fillStyle = "rgba(158, 198, 242, 1.0)";
+    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+    
+    // Draw BG sprites
+    // TODO: Temp
+    context.fillStyle = "green";
+    context.fillRect(launchAreaPosition.x, launchAreaPosition.y, launchAreaSize.x, launchAreaSize.y);
+    context.fillStyle = "red";
+    context.fillRect(targetAreaPosition.x, targetAreaPosition.y, targetAreaSize.x, targetAreaSize.y);
+    //bgSprite.draw(0, 0, context.canvas.width, context.canvas.height);
+    
+    // Draw balloons
     balloons.forEach((b) {
-      b.sprite.draw(b.position.x, b.position.y, 8 * b.scale, 24 * b.scale);
-      //balloonSprite.draw(100, 100, 16, 48);
+      balloonSprite.draw(b.position.x, b.position.y, 64 * b.scale, 128 * b.scale);
     });
     
-    double previewSatisfaction = gameData.peopleSatisfaction - 0.012 * (numBalloons + monthsLeft);
+    // TODO: Do this in update
+    double previewSatisfaction = 1.0;//gameData.peopleSatisfaction - 0.012 * (numBalloons + monthsLeft);
+
+    // Draw UI
     ui.draw(dt, previewSatisfaction);
   }
   
   void changeNumBalloons(int number) {
-    numBalloons += number;
-    ui.setNumBalloons(numBalloons);
+//    numBalloons += number;
+//    ui.setNumBalloons(numBalloons);
   }
   
   void incrementDate() {
+    // Launch any available balloons
+    if (balloonsToLaunch > 0) {
+      // TODO: Cleared on landing?
+      balloons.clear();
+      for (int i = 0; i < balloonsToLaunch; i++) {
+        // Start positions
+        Vector2 startPosition = launchAreaPosition + new Vector2(rand.nextInt(launchAreaSize.x), rand.nextInt(launchAreaSize.y));
+        Vector2 targetPosition = targetAreaPosition + new Vector2(rand.nextInt(targetAreaSize.x), rand.nextInt(targetAreaSize.y));
+        // TODO: Rand scale, rand wait time before launch (1 sec max) 
+        balloons.add(new Balloon(startPosition, targetPosition, 1.0));     
+      }
+      balloonsToLaunch = 0;
+    }
+    
+    if (balloonsToCreate > 0) {
+      // Create balloons
+      balloonsToLaunch = balloonsToCreate;
+    }
+    
     // Pass time
     month = (month + 1) % 13;
     if (month == 0) {
@@ -108,65 +157,26 @@ class Game {
       print('you lose, months over');
     }
     
-    if (month == 8 && year == 1945) {
-      print('you lose, monthsLeft: ${monthsLeft}');
-    }
-    
-    // Create balloons
-    // TODO: Temp rand
-    Math.Random rand = new Math.Random();
-    balloons.clear();
-    // TODO: TEMP
-    var scale = 0.46875;
-    var startPosition = new Vector2(266, 376) * scale;
-    for (int i = 0; i < numBalloons; i++) {
-      Vector2 position = startPosition + new Vector2(rand.nextInt(10) - 5, rand.nextInt(10) - 5);
-      balloons.add(new Balloon(balloonSprite, position, 2.0 + rand.nextDouble() * 0.8));
-      // TODO: Temp
-      balloons[i].target = new Vector2(1000, 376) * scale;
-    }
-    
     // TODO: Tweak, less months left increases satisfaction drop
-    gameData.peopleSatisfaction -= 0.0012 * (numBalloons + monthsLeft);
+//    gameData.peopleSatisfaction -= 0.0012 * (numBalloons + monthsLeft);
     print('peopleSatisfaction: ${gameData.peopleSatisfaction}');
-    // TODO: Leader satisfaction drops to 0 after half the time of drops with no 
+    // TODO: Leader satisfaction drops to 0 after half the time of drops with no bombs 
     gameData.leaderSatisfaction -= 1.0 / (START_MONTHS_LEFT / 2.0);
     print('leaderSatisfaction: ${gameData.leaderSatisfaction}');
-    // Move balloons
-    
-  }
-  
-  void fullscreenWorkaround(Element element) {
-    var elem = new JsObject.fromBrowserObject(element);
 
-    if (elem.hasProperty("requestFullscreen")) {
-      elem.callMethod("requestFullscreen");
-    }
-    else {
-      List<String> vendors = ['moz', 'webkit', 'ms', 'o'];
-      for (String vendor in vendors) {
-        String vendorFullscreen = "${vendor}RequestFullscreen";
-        if (vendor == 'moz') {
-          vendorFullscreen = "${vendor}RequestFullScreen";
-        }
-        if (elem.hasProperty(vendorFullscreen)) {
-          elem.callMethod(vendorFullscreen);
-          return;
-        }
-      }
-    }
+    // TODO: Some sort of log
   }
   
-  bool isDown = false;
-  void mouseDown(Vector2 position) {
-    if (!isDown)
-    {
-      isDown = true;  
-      ui.mouseDown(position);
-    }
-  }
-  
-  void mouseUp(Vector2 position) {
-    isDown = false;
-  }
+//  bool isDown = false;
+//  void mouseDown(Vector2 position) {
+//    if (!isDown)
+//    {
+//      isDown = true;  
+//      ui.mouseDown(position);
+//    }
+//  }
+//  
+//  void mouseUp(Vector2 position) {
+//    isDown = false;
+//  }
 }

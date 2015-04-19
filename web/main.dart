@@ -24,10 +24,11 @@ void init() {
   canvas.width = 600;
   canvas.height = 375;
   game = new Game(canvas.context2D);
-  // TODO: OnResize, OnFullscreen; canvas width, height
   
-  canvas.onMouseDown.listen(mouseDown);
-  canvas.onMouseUp.listen(mouseUp);
+//  canvas.onMouseDown.listen(mouseDown);
+//  canvas.onMouseUp.listen(mouseUp);
+  
+  window.onKeyPress.listen(keyPress);
   
   scheduleMicrotask(game.start);
   window.animationFrame.then(update);
@@ -41,19 +42,22 @@ void update(double frameTime) {
   lastFrameTime = frameTime;
   window.animationFrame.then(update);
 }
-
-void mouseDown(MouseEvent e) {
-  game.mouseDown(getMouseCanvasPosition(e));
+void keyPress(KeyboardEvent e) {
+  game.keyPress(e);
 }
 
-void mouseUp(MouseEvent e) {
-  game.mouseUp(getMouseCanvasPosition(e));
-}
+//void mouseDown(MouseEvent e) {
+//  game.mouseDown(getMouseCanvasPosition(e));
+//}
+//
+//void mouseUp(MouseEvent e) {
+//  game.mouseUp(getMouseCanvasPosition(e));
+//}
 
-Vector2 getMouseCanvasPosition(MouseEvent e) {
-  Rectangle rect = canvas.getBoundingClientRect();
-
-  var x = e.client.x - rect.left;
-  var y = e.client.y - rect.top;
-  return new Vector2(x, y);
-}
+//Vector2 getMouseCanvasPosition(MouseEvent e) {
+//  Rectangle rect = canvas.getBoundingClientRect();
+//
+//  var x = e.client.x - rect.left;
+//  var y = e.client.y - rect.top;
+//  return new Vector2(x, y);
+//}

@@ -1,15 +1,14 @@
 part of ld32;
 
 class Balloon {
-  Sprite sprite;
-  Vector2 position;
   Vector2 startPosition;
+  Vector2 position;
+  Vector2 target;
   double scale;
-  Balloon(this.sprite, this.position, this.scale) {
+  Balloon(this.position, this.target, this.scale) {
     startPosition = new Vector2(position.x, position.y);
   }
   
-  // TODO: Temp stuff
-  Vector2 target;
+  // TODO: Global movetimer? Local random offset?
   double moveTimer = 0.0;
 }
