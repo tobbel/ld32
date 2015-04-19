@@ -13,25 +13,29 @@ class UI {
   GameData gameData;
   LabelElement dateLabel;
   LabelElement numBalloonsLabel;
+  String dateString = '';
   UI(this.canvas, this.gameData);
   
   void draw(double dt) {
     var context = canvas.context2D;
-    context.fillStyle = 'blue';
-    context.rect(0, 0, 10, 100);
-    context.stroke();
+//    context.fillStyle = 'blue';
+//    context.rect(0, 0, 10, 100);
+//    context.stroke();
+//    
+//    context.globalAlpha = 0.5;
+//    context.fillRect(0, 25, 9, 75);
+//    context.globalAlpha = 1.0;
+//    var height = 100 * 0.5;
+//    context.fillRect(0, 100 - height, 9, height);
     
-    context.globalAlpha = 0.5;
-    context.fillRect(0, 25, 9, 75);
-    context.globalAlpha = 1.0;
-    var height = 100 * 0.5;
-    context.fillRect(0, 100 - height, 9, height);
-    
-    context.fillStyle = "black";
     context.font = "24px Roboto";
     var dateMetrics = context.measureText(dateString);
     var offset = 10;
-    context.fillText(dateString, context.canvas.width / 2 - dateMetrics.width / 2, 24 + offset);//dateMetrics.fontBoundingBoxAscent + offset);
+    context.fillStyle = "white";
+    context.fillRect(context.canvas.width / 2 - dateMetrics.width / 2, offset, dateMetrics.width, 24);
+    
+    context.fillStyle = "black";
+    context.fillText(dateString, context.canvas.width / 2 - dateMetrics.width / 2, 24 + offset);
 
     // UI on lower 1/3 of screen
     // TODO: Super temp
@@ -70,20 +74,59 @@ class UI {
     
     context.fillText(balloonText, startX, startY + fontHeight * 2 + 5);
     
+    context.font = "18px Roboto";
+    fontHeight = 18;
+    context.fillText("People satisfaction:", startX, startY + boxHeight/2 + fontHeight);
+    //context.fillRect(startX, startY + boxHeight + margin, boxWidth, boxHeight);
+    context.fillRect(startX, startY + boxHeight/2 + fontHeight + 2, boxWidth, boxHeight);
+    var thickness = 2;
+    context.fillStyle = "rgba(255, 255, 208, 1)";
+    context.fillRect(startX + thickness, startY + boxHeight/2 + fontHeight + 2 + thickness, boxWidth - thickness * 2, boxHeight - thickness * 2);
+    var factor = gameData.peopleSatisfaction;
+    context.fillStyle = "rgba(0, 0, 208, 0.5)";
+    context.fillRect(startX + thickness, startY + boxHeight/2 + fontHeight + 2 + thickness, (boxWidth - thickness * 2) * factor, boxHeight - thickness * 2);
+    context.fillStyle = "rgba(0, 0, 208, 1.0)";
+    factor += gameData.peopleSatisfactionChange;
+    context.fillRect(startX + thickness, startY + boxHeight/2 + fontHeight + 2 + thickness, (boxWidth - thickness * 2) * factor, boxHeight - thickness * 2);
     
-    context.fillRect(startX, startY + boxHeight + margin, boxWidth, boxHeight);
-    context.fillRect(startX, startY + boxHeight*2 + margin*2, boxWidth, boxHeight);
+    startY = startY + boxHeight * 2 + thickness;
+    context.fillStyle = "black";
+    context.fillText("Leader satisfaction: ", startX, startY);
+    context.fillRect(startX, startY + fontHeight/2, boxWidth, boxHeight);
+    context.fillStyle = "rgba(255, 255, 208, 1)";
+    context.fillRect(startX + thickness, startY + fontHeight/2 + thickness, boxWidth - thickness * 2, boxHeight - thickness * 2);
     
+    factor = gameData.leaderSatisfaction;
+    context.fillStyle = "rgba(0, 208, 0, 0.5)";
+    context.fillRect(startX + thickness, startY + fontHeight/2 + thickness, (boxWidth - thickness * 2) * factor, boxHeight - thickness * 2);
+    context.fillStyle = "rgba(0, 208, 0, 1.0)";
+    factor += gameData.leaderSatisfactionChange;
+    context.fillRect(startX + thickness, startY + fontHeight/2 + thickness, (boxWidth - thickness * 2) * factor, boxHeight - thickness * 2);
+    
+    startY = y + margin * 2;
+    
+    context.fillStyle = "black";
     startX += boxWidth + margin * 2;
-    context.fillRect(startX, startY, boxWidth, boxHeight);
-    context.fillRect(startX, startY + boxHeight + margin, boxWidth, boxHeight);
-    context.fillRect(startX, startY + boxHeight*2 + margin*2, boxWidth, boxHeight);
-
+    //context.fillRect(startX, startY, boxWidth, boxHeight);
+    //context.fillRect(startX, startY + boxHeight + margin, boxWidth, boxHeight);
+    
+    context.fillText("Terror level", startX, startY + boxHeight * 2 + thickness);
+    context.fillRect(startX, startY + boxHeight * 2 + margin * 2, boxWidth, boxHeight);
+    context.fillStyle = "rgba(255, 255, 208, 1)";
+    context.fillRect(startX + thickness, startY + boxHeight * 2 + margin * 2 + thickness, boxWidth - thickness * 2, boxHeight - thickness * 2);
+    
+    factor = gameData.terrorLevel;
+    context.fillStyle = "rgba(208, 0, 0, 0.5)";
+    context.fillRect(startX + thickness, startY + boxHeight * 2 + margin * 2 + thickness, (boxWidth - thickness * 2) * factor, boxHeight - thickness * 2);
+    context.fillStyle = "rgba(208, 0, 0, 1.0)";
+    factor *= 0.8;
+    context.fillRect(startX + thickness, startY + boxHeight * 2 + margin * 2 + thickness, (boxWidth - thickness * 2) * factor, boxHeight - thickness * 2);
+    
+    // Divider
     context.fillStyle = "rgba(100, 75, 0, 1)";
     context.fillRect(x + boxWidth + margin * 2 + 3, y, margin - 1, h);
   }
-   
-  String dateString = '';
+  
   void setDate(int year, int month) {
     var monthString = '';
     switch (month) {

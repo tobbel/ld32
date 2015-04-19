@@ -26,7 +26,7 @@ class Game {
   int month = 12;
   static const int START_MONTHS_LEFT = 44;
   int monthsLeft = START_MONTHS_LEFT;
-  //Sprite bgSprite;
+  Sprite bgSprite;
   Sprite balloonSprite;
   Sprite failSprite;
   Sprite explosionSprite;
@@ -48,8 +48,8 @@ class Game {
     context.canvas.width = canvasWidth;
     context.canvas.height = canvasHeight;
     
-    //var mapImage = new ImageElement(src: '../img/map.png', width: 1280, height: 800);
-    //bgSprite = new Sprite(mapImage, mapImage.width, mapImage.height);
+    var mapImage = new ImageElement(src: '../img/map2.png', width: 1280, height: 720);
+    bgSprite = new Sprite(mapImage, mapImage.width, mapImage.height);
     var balloonImage = new ImageElement(src: '../img/balloon3.png', width: 64, height: 128);
     balloonSprite = new Sprite(balloonImage, balloonImage.width, balloonImage.height);
     var failImage = new ImageElement(src: '../img/fail.png', width: 64, height: 64);
@@ -87,9 +87,13 @@ class Game {
         if (b.moveTimer <= 0.0) {
           b.moveTimer = 0.0;
           explodedBalloons.add(b.position);
-          // TODO: Satisfaction based on kills
-          gameData.peopleSatisfaction += 0.01;
+
+          gameData.terrorLevel += 0.005;
+          // TODO: Satisfaction and terror level based on kills
+          gameData.peopleSatisfaction += 0.001;
           gameData.leaderSatisfaction += 0.01;
+          gameData.leaderSatisfaction = Math.max(0, Math.min(gameData.leaderSatisfaction, 1.0));
+          //gameData.leaderSatisfaction = Math.max(gameData.leaderSatisfaction, 1.0);
         }
       }
       
@@ -107,12 +111,9 @@ class Game {
     if (currentState == GameState.FLYING) {
       if (balloons.length == 0) {
         // Calculate terror level - increases more towards end
-        gameData.terrorLevel += explodedBalloons.length * 0.01;
-        gameData.terrorLevel *= 0.8;
+        gameData.terrorLevel *= 0.7;
         // TODO: Log state
         
-        //gameData.peopleSatisfaction += gameData.peopleSatisfactionChange;
-        //gameData.leaderSatisfaction += gameData.leaderSatisfactionChange;
         currentState = GameState.WAIT;
       }
     }
@@ -128,20 +129,6 @@ class Game {
     //gameData.leaderSatisfaction -= 1.0 / (START_MONTHS_LEFT / 2.0);
 
     draw(dt);
-    
-    var text = 'Current state: ' + currentState.toString();
-    context.fillStyle = "black";
-    context.font = "24px Roboto";
-    var dateMetrics = context.measureText(text);
-    var offset = 40;
-    var size = 24;
-    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, size + offset);
-    text = 'People satisfaction: ' + gameData.peopleSatisfaction.toString();
-    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, size + offset * 2);
-    text = 'Leader satisfaction: ' + gameData.leaderSatisfaction.toString();
-    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, size + offset * 3);
-    text = 'Terror level: ' + gameData.terrorLevel.toString();
-    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, size + offset * 4);
   }
   
   void keyPress(KeyboardEvent e) {
@@ -171,11 +158,12 @@ class Game {
     
     // Draw BG sprites
     // TODO: Temp
+    bgSprite.draw(0, 0, context.canvas.width, context.canvas.height);
     context.fillStyle = "green";
     context.fillRect(launchAreaPosition.x, launchAreaPosition.y, launchAreaSize.x, launchAreaSize.y);
     context.fillStyle = "red";
     context.fillRect(targetAreaPosition.x, targetAreaPosition.y, targetAreaSize.x, targetAreaSize.y);
-    //bgSprite.draw(0, 0, context.canvas.width, context.canvas.height);
+    
 
     // Failed balloons
     for (Vector2 pos in failedBalloons) {
@@ -240,6 +228,8 @@ class Game {
     monthsLeft--;
     
     gameData.leaderSatisfaction += gameData.leaderSatisfactionChange;
+    //gameData.leaderSatisfaction = Math.max(gameData.leaderSatisfaction, 1.0);
+    gameData.leaderSatisfaction = Math.max(0, Math.min(gameData.leaderSatisfaction, 1.0));
     if (monthsLeft == 0) {
       print('you lose, months over');
     }
