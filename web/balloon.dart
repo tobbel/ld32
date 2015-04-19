@@ -5,10 +5,11 @@ class Balloon {
   Vector2 position;
   Vector2 target;
   double scale;
-  Balloon(this.position, this.target, this.scale) {
-    startPosition = new Vector2(position.x, position.y);
-  }
-  
-  // TODO: Global movetimer? Local random offset?
+  double moveTime;
   double moveTimer = 0.0;
+  double startTimer;
+  Balloon(this.position, this.target, this.moveTime, this.startTimer, this.scale) {
+    startPosition = new Vector2(position.x, position.y);
+    moveTimer = moveTime;
+  }
 }

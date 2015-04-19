@@ -4,7 +4,7 @@ part of ld32;
 class GameData {
   double peopleSatisfaction = 1.0;
   double leaderSatisfaction = 1.0;
-  double terrorLevel = 0.0;  
+  double terrorLevel = 0.0;
   // TODO: Date? Balloons?
 }
 
@@ -55,17 +55,30 @@ class Game {
   }
   
   void update(double dt) {
-    balloons.forEach((b) {
-      b.moveTimer += dt;
-      double fraction = b.moveTimer / 5.0;
-      b.position = b.startPosition + (b.target - b.startPosition) * fraction;
-      b.position.y -= 100.0 * (Math.sin(fraction * Math.PI) + Math.sin(fraction * 20.0) / 10.0);
-      if (fraction >= 1.0) {
-        b.scale = 10.0;
+    for (Balloon b in balloons) {
+      // Wait to start with some
+      if (b.startTimer > 0) {
+        b.startTimer -= dt;
+        continue;        
       }
-    });
+      
+      // Movement
+      if (b.moveTimer >= 0.0) {
+        b.moveTimer -= dt;
+        double fraction = 1 - (b.moveTimer / b.moveTime);
+        b.position = b.startPosition + (b.target - b.startPosition) * fraction;
+        b.position.y -= 100.0 * (Math.sin(fraction * Math.PI) + Math.sin(fraction * 20.0) / 10.0);
+        
+        if (b.moveTimer <= 0.0) {
+          b.moveTimer = 0.0;
+        }
+      }
+      
+      // Fail/bomb, etc.
+    }
     
-    // TODO: Update bound to framerate, might do for this
+    balloons.removeWhere((b) => b.moveTimer <= 0);
+    
     draw(dt);
   }
   
@@ -109,7 +122,9 @@ class Game {
     
     // Draw balloons
     balloons.forEach((b) {
-      balloonSprite.draw(b.position.x, b.position.y, 64 * b.scale, 128 * b.scale);
+      if (b.startTimer <= 0) {      
+        balloonSprite.draw(b.position.x, b.position.y, 32 * b.scale, 64 * b.scale);
+      }
     });
     
     // TODO: Do this in update
@@ -127,14 +142,15 @@ class Game {
   void incrementDate() {
     // Launch any available balloons
     if (balloonsToLaunch > 0) {
-      // TODO: Cleared on landing?
       balloons.clear();
       for (int i = 0; i < balloonsToLaunch; i++) {
         // Start positions
         Vector2 startPosition = launchAreaPosition + new Vector2(rand.nextInt(launchAreaSize.x), rand.nextInt(launchAreaSize.y));
         Vector2 targetPosition = targetAreaPosition + new Vector2(rand.nextInt(targetAreaSize.x), rand.nextInt(targetAreaSize.y));
-        // TODO: Rand scale, rand wait time before launch (1 sec max) 
-        balloons.add(new Balloon(startPosition, targetPosition, 1.0));     
+        // TODO: Rand scale 
+        double startOffsetTime = rand.nextDouble() * 0.6;
+        double moveTime = 5.0 + rand.nextDouble() * 3.0;
+        balloons.add(new Balloon(startPosition, targetPosition, moveTime, startOffsetTime, 1.0));     
       }
       balloonsToLaunch = 0;
     }

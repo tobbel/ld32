@@ -17,42 +17,42 @@ class UI {
   LabelElement dateLabel;
   LabelElement numBalloonsLabel;
   UI(this.canvas, this.callbackFunction, this.gameData) {// this.incrementDateFunction, this.numBalloonsChangedFunction) {
-    DivElement div = new DivElement();
-    
-    // Test buttons
-    ButtonElement leftButton = new ButtonElement();
-    leftButton.text = '<';
-    //leftButton.onClick.listen(leftClick);
-    div.append(leftButton);
-    numBalloonsLabel = new LabelElement();
-    div.append(numBalloonsLabel);
-    ButtonElement rightButton = new ButtonElement();
-    rightButton.text = '>';
-    //rightButton.onClick.listen(rightClick);
-    div.append(rightButton);
-    
-    div.append(new ParagraphElement());
-    // Cycle date
-    var dateButton = new ButtonElement();
-    dateButton.text = 'Pass time 1 month';
-    dateButton.onClick.listen(onDateButtonClicked);
-    div.append(dateButton);
-    
-    dateLabel = new LabelElement();
-    div.append(dateLabel);
-    
-    canvas.parent.append(div);
+//    DivElement div = new DivElement();
+//    
+//    // Test buttons
+//    ButtonElement leftButton = new ButtonElement();
+//    leftButton.text = '<';
+//    //leftButton.onClick.listen(leftClick);
+//    div.append(leftButton);
+//    numBalloonsLabel = new LabelElement();
+//    div.append(numBalloonsLabel);
+//    ButtonElement rightButton = new ButtonElement();
+//    rightButton.text = '>';
+//    //rightButton.onClick.listen(rightClick);
+//    div.append(rightButton);
+//    
+//    div.append(new ParagraphElement());
+//    // Cycle date
+//    var dateButton = new ButtonElement();
+//    dateButton.text = 'Pass time 1 month';
+//    dateButton.onClick.listen(onDateButtonClicked);
+//    div.append(dateButton);
+//    
+//    dateLabel = new LabelElement();
+//    div.append(dateLabel);
+//    
+//    canvas.parent.append(div);
   }
   
-  List<Button> buttons = new List<Button>();
+  //List<Button> buttons = new List<Button>();
 //  void AddButton(int x, int y, int width, int height, String text, Function onClick) {
 //    buttons.add(new Button(new Vector2(x, y), new Vector2(width, height), text, onClick));
 //  }
   
-  void AddButton(Vector2 position, Vector2 size, String text, Function onClick) {
-    buttons.add(new Button(position, size, text, onClick));
-  }
-  bool button = false;
+//  void AddButton(Vector2 position, Vector2 size, String text, Function onClick) {
+//    buttons.add(new Button(position, size, text, onClick));
+//  }
+//  bool button = false;
   void draw(double dt, double satisfaction) {
     var context = canvas.context2D;
     context.fillStyle = 'blue';
@@ -98,7 +98,7 @@ class UI {
     //context.fillRect(startX, startY, boxWidth, boxHeight / 2 - margin / 2);
 
     context.font = "12px Roboto";
-    var balloonText = 'Balloons to create this month: ' + numBalloonsLabel.text;
+    var balloonText = 'Balloons to create this month: 1';// + numBalloonsLabel.text;
     var metrics = context.measureText(balloonText);
     
     context.fillText(balloonText, startX, startY + metrics.fontBoundingBoxAscent);
@@ -157,7 +157,7 @@ class UI {
 //  }
 //  
   void setNumBalloons(int numBalloons) {
-    numBalloonsLabel.text = numBalloons.toString();
+   /// numBalloonsLabel.text = numBalloons.toString();
   }
   String dateString = '';
   void setDate(int year, int month) {
@@ -203,7 +203,7 @@ class UI {
         monthString = '---';
         break;
     }
-    dateLabel.text = monthString + ' ' + year.toString();
+    //dateLabel.text = monthString + ' ' + year.toString();
     dateString = monthString + ' ' + year.toString();
   }
 }
