@@ -25,9 +25,6 @@ void init() {
   canvas.height = 375;
   game = new Game(canvas.context2D);
   
-//  canvas.onMouseDown.listen(mouseDown);
-//  canvas.onMouseUp.listen(mouseUp);
-  
   window.onKeyPress.listen(keyPress);
   
   scheduleMicrotask(game.start);
@@ -42,22 +39,7 @@ void update(double frameTime) {
   lastFrameTime = frameTime;
   window.animationFrame.then(update);
 }
+
 void keyPress(KeyboardEvent e) {
   game.keyPress(e);
 }
-
-//void mouseDown(MouseEvent e) {
-//  game.mouseDown(getMouseCanvasPosition(e));
-//}
-//
-//void mouseUp(MouseEvent e) {
-//  game.mouseUp(getMouseCanvasPosition(e));
-//}
-
-//Vector2 getMouseCanvasPosition(MouseEvent e) {
-//  Rectangle rect = canvas.getBoundingClientRect();
-//
-//  var x = e.client.x - rect.left;
-//  var y = e.client.y - rect.top;
-//  return new Vector2(x, y);
-//}

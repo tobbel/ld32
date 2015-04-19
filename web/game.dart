@@ -5,10 +5,18 @@ class GameData {
   double peopleSatisfaction = 1.0;
   double leaderSatisfaction = 1.0;
   double terrorLevel = 0.0;
+  int balloonsToLaunch = 0;
+  int balloonsToCreate = 0;  
   // TODO: Date? Balloons?
 }
 
+enum GameState {
+  //MENU
+  WAIT,
+  FLYING
+}
 class Game {
+  GameState currentState = GameState.WAIT;
   static const int canvasWidth = 1280;
   static const int canvasHeight = 720;
   CanvasRenderingContext2D context;
@@ -16,10 +24,10 @@ class Game {
   int month = 12;
   static const int START_MONTHS_LEFT = 44;
   int monthsLeft = START_MONTHS_LEFT;
-  int balloonsToLaunch = 0;
-  int balloonsToCreate = 0;
   Sprite bgSprite;
   Sprite balloonSprite;
+  Sprite failSprite;
+  Sprite explosionSprite;
   
   Vector2 launchAreaPosition = new Vector2(150, 285);
   Vector2 launchAreaSize = new Vector2(24, 24);
@@ -30,6 +38,8 @@ class Game {
   GameData gameData;
   UI ui;
   List<Balloon> balloons = new List<Balloon>();
+  List<Vector2> failedBalloons = new List<Vector2>();
+  List<Vector2> explodedBalloons = new List<Vector2>();
   Math.Random rand = new Math.Random();
   
   Game(this.context) {
@@ -40,13 +50,16 @@ class Game {
     bgSprite = new Sprite(img, img.width, img.height);
     ImageElement balloonImg = new ImageElement(src: '../img/balloon3.png', width: 64, height: 128);
     balloonSprite = new Sprite(balloonImg, img.width, img.height);
+    var failImg = new ImageElement(src: '../img/fail.png', width: 64, height: 64);
+    failSprite = new Sprite(failImg, img.width, img.height);
+    var explosionImg = new ImageElement(src: '../img/explosion.png', width: 64, height: 64);
+    explosionSprite = new Sprite(explosionImg, img.width, img.height);
     
     Sprite.context = context;
     
     gameData = new GameData();
-    ui = new UI(context.canvas, uiCallback, gameData);
+    ui = new UI(context.canvas, gameData);
     ui.setDate(year, month);
-    ui.setNumBalloons(balloonsToCreate);
   }
   
   void start() {
@@ -71,37 +84,53 @@ class Game {
         
         if (b.moveTimer <= 0.0) {
           b.moveTimer = 0.0;
+          explodedBalloons.add(b.position);
         }
       }
       
       // Fail/bomb, etc.
+      // Fail - calculate for this frame based on percentage over flight time
+      double frameFailPercentage = b.failPercentage * dt / b.moveTime;
+      if (frameFailPercentage > rand.nextDouble()) {
+        b.moveTimer = 0.0;
+        failedBalloons.add(b.position);
+      }
     }
     
     balloons.removeWhere((b) => b.moveTimer <= 0);
     
+    if (currentState == GameState.FLYING) {
+      if (balloons.length == 0) {
+        currentState = GameState.WAIT;
+      }
+    }
     draw(dt);
-  }
-  
-  void uiCallback(String type) {
     
+    var text = 'Current state: ' + currentState.toString();
+
+    context.fillStyle = "black";
+    context.font = "24px Roboto";
+    var dateMetrics = context.measureText(text);
+    var offset = 20;
+    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset);
   }
   
   void keyPress(KeyboardEvent e) {
-    print(e.keyCode.toString());
+    //print(e.keyCode.toString());
     if (e.keyCode == 113) {
       // Increase balloons
-      balloonsToCreate++;
-      ui.setNumBalloons(balloonsToCreate);
+      gameData.balloonsToCreate++;
     }
     if (e.keyCode == 97) {
       // Decrease balloons
-      balloonsToCreate--;
-      ui.setNumBalloons(balloonsToCreate);
+      gameData.balloonsToCreate--;
     }
     
     if (e.keyCode == 32) {
       // Try to pass month
-      incrementDate();
+      if (currentState == GameState.WAIT) {        
+        incrementDate();
+      }
     }
   }
   
@@ -119,6 +148,16 @@ class Game {
     context.fillStyle = "red";
     context.fillRect(targetAreaPosition.x, targetAreaPosition.y, targetAreaSize.x, targetAreaSize.y);
     //bgSprite.draw(0, 0, context.canvas.width, context.canvas.height);
+
+    // Failed balloons
+    for (Vector2 pos in failedBalloons) {
+      failSprite.draw(pos.x, pos.y, 16, 16);
+    }
+    
+    // Exploded balloons
+    for (Vector2 pos in explodedBalloons) {
+      explosionSprite.draw(pos.x, pos.y, 16, 16);
+    }
     
     // Draw balloons
     balloons.forEach((b) {
@@ -127,6 +166,7 @@ class Game {
       }
     });
     
+    
     // TODO: Do this in update
     double previewSatisfaction = 1.0;//gameData.peopleSatisfaction - 0.012 * (numBalloons + monthsLeft);
 
@@ -134,30 +174,33 @@ class Game {
     ui.draw(dt, previewSatisfaction);
   }
   
-  void changeNumBalloons(int number) {
-//    numBalloons += number;
-//    ui.setNumBalloons(numBalloons);
-  }
-  
   void incrementDate() {
+    // Remove old stuff
+    balloons.clear();
+    failedBalloons.clear();
+    explodedBalloons.clear();
+    
     // Launch any available balloons
-    if (balloonsToLaunch > 0) {
-      balloons.clear();
-      for (int i = 0; i < balloonsToLaunch; i++) {
+    if (gameData.balloonsToLaunch > 0) {
+      for (int i = 0; i < gameData.balloonsToLaunch; i++) {
         // Start positions
         Vector2 startPosition = launchAreaPosition + new Vector2(rand.nextInt(launchAreaSize.x), rand.nextInt(launchAreaSize.y));
         Vector2 targetPosition = targetAreaPosition + new Vector2(rand.nextInt(targetAreaSize.x), rand.nextInt(targetAreaSize.y));
-        // TODO: Rand scale 
+        
         double startOffsetTime = rand.nextDouble() * 0.6;
         double moveTime = 5.0 + rand.nextDouble() * 3.0;
-        balloons.add(new Balloon(startPosition, targetPosition, moveTime, startOffsetTime, 1.0));     
+        
+        // At start, 90% fail. At end, 10%.
+        double failPercentage = 0.1 + 0.8 * (monthsLeft / START_MONTHS_LEFT);
+        balloons.add(new Balloon(startPosition, targetPosition, moveTime, startOffsetTime, failPercentage, 1.0));     
       }
-      balloonsToLaunch = 0;
+      gameData.balloonsToLaunch = 0;
     }
     
-    if (balloonsToCreate > 0) {
+    if (gameData.balloonsToCreate > 0) {
       // Create balloons
-      balloonsToLaunch = balloonsToCreate;
+      gameData.balloonsToLaunch = gameData.balloonsToCreate;
+      gameData.balloonsToCreate = 0;
     }
     
     // Pass time
@@ -181,6 +224,7 @@ class Game {
     print('leaderSatisfaction: ${gameData.leaderSatisfaction}');
 
     // TODO: Some sort of log
+    currentState = GameState.FLYING;
   }
   
 //  bool isDown = false;

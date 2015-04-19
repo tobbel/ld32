@@ -8,7 +8,8 @@ class Balloon {
   double moveTime;
   double moveTimer = 0.0;
   double startTimer;
-  Balloon(this.position, this.target, this.moveTime, this.startTimer, this.scale) {
+  double failPercentage;
+  Balloon(this.position, this.target, this.moveTime, this.startTimer, this.failPercentage, this.scale) {
     startPosition = new Vector2(position.x, position.y);
     moveTimer = moveTime;
   }

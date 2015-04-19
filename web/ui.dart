@@ -10,49 +10,11 @@ class Button {
 
 class UI {
   CanvasElement canvas;
-  //Function incrementDateFunction;
-  //Function numBalloonsChangedFunction;
   GameData gameData;
-  Function callbackFunction;
   LabelElement dateLabel;
   LabelElement numBalloonsLabel;
-  UI(this.canvas, this.callbackFunction, this.gameData) {// this.incrementDateFunction, this.numBalloonsChangedFunction) {
-//    DivElement div = new DivElement();
-//    
-//    // Test buttons
-//    ButtonElement leftButton = new ButtonElement();
-//    leftButton.text = '<';
-//    //leftButton.onClick.listen(leftClick);
-//    div.append(leftButton);
-//    numBalloonsLabel = new LabelElement();
-//    div.append(numBalloonsLabel);
-//    ButtonElement rightButton = new ButtonElement();
-//    rightButton.text = '>';
-//    //rightButton.onClick.listen(rightClick);
-//    div.append(rightButton);
-//    
-//    div.append(new ParagraphElement());
-//    // Cycle date
-//    var dateButton = new ButtonElement();
-//    dateButton.text = 'Pass time 1 month';
-//    dateButton.onClick.listen(onDateButtonClicked);
-//    div.append(dateButton);
-//    
-//    dateLabel = new LabelElement();
-//    div.append(dateLabel);
-//    
-//    canvas.parent.append(div);
-  }
+  UI(this.canvas, this.gameData);
   
-  //List<Button> buttons = new List<Button>();
-//  void AddButton(int x, int y, int width, int height, String text, Function onClick) {
-//    buttons.add(new Button(new Vector2(x, y), new Vector2(width, height), text, onClick));
-//  }
-  
-//  void AddButton(Vector2 position, Vector2 size, String text, Function onClick) {
-//    buttons.add(new Button(position, size, text, onClick));
-//  }
-//  bool button = false;
   void draw(double dt, double satisfaction) {
     var context = canvas.context2D;
     context.fillStyle = 'blue';
@@ -98,25 +60,15 @@ class UI {
     //context.fillRect(startX, startY, boxWidth, boxHeight / 2 - margin / 2);
 
     context.font = "12px Roboto";
-    var balloonText = 'Balloons to create this month: 1';// + numBalloonsLabel.text;
+    var balloonText = 'Balloons to create this month: ' + gameData.balloonsToCreate.toString();
     var metrics = context.measureText(balloonText);
     
     context.fillText(balloonText, startX, startY + metrics.fontBoundingBoxAscent);
-    // Balloon buttons
-    //context.fillRect(startX, startY + boxHeight / 2, boxWidth/5, boxHeight / 2);
-//    if (!button) {
-//      button = true;
-//      AddButton(new Vector2(startX, startY + boxHeight / 2), new Vector2(boxWidth / 5, boxHeight / 2), "Less", increaseBalloonCount);
-//    }
-//    
-//    buttons.forEach((b){
-//      context.fillStyle = "rgba(100, 75, 0, 1)";
-//      context.fillRect(b.position.x, b.position.y, b.size.x, b.size.y);
-//      context.fillStyle = "rgba(255, 255, 208, 1)";
-//      context.fillRect(b.position.x + 2, b.position.y + 2, b.size.x - 4, b.size.y - 4);
-//      context.fillStyle = "black";
-//      context.fillText(b.text, b.position.x + 2, b.position.y + metrics.fontBoundingBoxAscent + 1);
-//    });
+    
+    balloonText = 'Balloons ready to launch: ' + gameData.balloonsToLaunch.toString();
+    metrics = context.measureText(balloonText);
+    context.fillText(balloonText, startX, startY + metrics.fontBoundingBoxAscent * 2 + 5);
+    
     
     context.fillRect(startX, startY + boxHeight + margin, boxWidth, boxHeight);
     context.fillRect(startX, startY + boxHeight*2 + margin*2, boxWidth, boxHeight);
@@ -129,36 +81,7 @@ class UI {
     context.fillStyle = "rgba(100, 75, 0, 1)";
     context.fillRect(x + boxWidth + margin * 2 + 3, y, margin - 1, h);
   }
-  
-  void increaseBalloonCount() {
-
-  //  numBalloonsChangedFunction(1);
-  }
-  
-  void mouseDown(Vector2 position) {
-//    buttons.forEach((b){
-//      if (position.x > b.position.x && position.y > b.position.y && position.x < (b.position.x + b.size.x) && position.y < (b.position.y + b.size.y)) {
-//        b.onClick();
-//      }
-//    });
-  }
-  
-  void onDateButtonClicked(MouseEvent e) {
-    callbackFunction('date');
-    //incrementDateFunction();
-  }
-  
-//  void leftClick(MouseEvent e) {
-//    numBalloonsChangedFunction(-1);
-//  }
-//  
-//  void rightClick(MouseEvent e) {
-//    numBalloonsChangedFunction(1);
-//  }
-//  
-  void setNumBalloons(int numBalloons) {
-   /// numBalloonsLabel.text = numBalloons.toString();
-  }
+   
   String dateString = '';
   void setDate(int year, int month) {
     var monthString = '';
@@ -203,7 +126,6 @@ class UI {
         monthString = '---';
         break;
     }
-    //dateLabel.text = monthString + ' ' + year.toString();
     dateString = monthString + ' ' + year.toString();
   }
 }
