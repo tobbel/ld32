@@ -26,7 +26,7 @@ class Game {
   int month = 12;
   static const int START_MONTHS_LEFT = 44;
   int monthsLeft = START_MONTHS_LEFT;
-  Sprite bgSprite;
+  //Sprite bgSprite;
   Sprite balloonSprite;
   Sprite failSprite;
   Sprite explosionSprite;
@@ -48,14 +48,14 @@ class Game {
     context.canvas.width = canvasWidth;
     context.canvas.height = canvasHeight;
     
-    ImageElement img = new ImageElement(src: '../img/map.png', width: 1280, height: 800);//, context.canvas.width, context.canvas.height);
-    bgSprite = new Sprite(img, img.width, img.height);
-    ImageElement balloonImg = new ImageElement(src: '../img/balloon3.png', width: 64, height: 128);
-    balloonSprite = new Sprite(balloonImg, img.width, img.height);
-    var failImg = new ImageElement(src: '../img/fail.png', width: 64, height: 64);
-    failSprite = new Sprite(failImg, img.width, img.height);
-    var explosionImg = new ImageElement(src: '../img/explosion.png', width: 64, height: 64);
-    explosionSprite = new Sprite(explosionImg, img.width, img.height);
+    //var mapImage = new ImageElement(src: '../img/map.png', width: 1280, height: 800);
+    //bgSprite = new Sprite(mapImage, mapImage.width, mapImage.height);
+    var balloonImage = new ImageElement(src: '../img/balloon3.png', width: 64, height: 128);
+    balloonSprite = new Sprite(balloonImage, balloonImage.width, balloonImage.height);
+    var failImage = new ImageElement(src: '../img/fail.png', width: 64, height: 64);
+    failSprite = new Sprite(failImage, failImage.width, failImage.height);
+    var explosionImage = new ImageElement(src: '../img/explosion.png', width: 64, height: 64);
+    explosionSprite = new Sprite(explosionImage, explosionImage.width, explosionImage.height);
     
     Sprite.context = context;
     
@@ -134,13 +134,14 @@ class Game {
     context.font = "24px Roboto";
     var dateMetrics = context.measureText(text);
     var offset = 40;
-    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset);
+    var size = 24;
+    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, size + offset);
     text = 'People satisfaction: ' + gameData.peopleSatisfaction.toString();
-    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset * 2);
+    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, size + offset * 2);
     text = 'Leader satisfaction: ' + gameData.leaderSatisfaction.toString();
-    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset * 3);
+    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, size + offset * 3);
     text = 'Terror level: ' + gameData.terrorLevel.toString();
-    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset * 4);
+    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, size + offset * 4);
   }
   
   void keyPress(KeyboardEvent e) {

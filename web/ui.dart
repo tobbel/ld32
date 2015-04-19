@@ -31,7 +31,7 @@ class UI {
     context.font = "24px Roboto";
     var dateMetrics = context.measureText(dateString);
     var offset = 10;
-    context.fillText(dateString, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset);
+    context.fillText(dateString, context.canvas.width / 2 - dateMetrics.width / 2, 24 + offset);//dateMetrics.fontBoundingBoxAscent + offset);
 
     // UI on lower 1/3 of screen
     // TODO: Super temp
@@ -61,13 +61,14 @@ class UI {
 
     context.font = "12px Roboto";
     var balloonText = 'Balloons to create this month: ' + gameData.balloonsToCreate.toString();
-    var metrics = context.measureText(balloonText);
     
-    context.fillText(balloonText, startX, startY + metrics.fontBoundingBoxAscent);
+    // Hack: fontMetrics.fontBoundingBoxAscent won't work when compiled to JS
+    var fontHeight = 12;
+    context.fillText(balloonText, startX, startY + fontHeight);
     
     balloonText = 'Balloons ready to launch: ' + gameData.balloonsToLaunch.toString();
-    metrics = context.measureText(balloonText);
-    context.fillText(balloonText, startX, startY + metrics.fontBoundingBoxAscent * 2 + 5);
+    
+    context.fillText(balloonText, startX, startY + fontHeight * 2 + 5);
     
     
     context.fillRect(startX, startY + boxHeight + margin, boxWidth, boxHeight);
