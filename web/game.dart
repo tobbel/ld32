@@ -3,17 +3,19 @@ part of ld32;
 // Things that need to be passed to UI
 class GameData {
   double peopleSatisfaction = 1.0;
+  double peopleSatisfactionChange = 0.0;
   double leaderSatisfaction = 1.0;
+  double leaderSatisfactionChange = 0.0;
   double terrorLevel = 0.0;
   int balloonsToLaunch = 0;
-  int balloonsToCreate = 0;  
-  // TODO: Date? Balloons?
+  int balloonsToCreate = 0;
 }
 
 enum GameState {
   //MENU
   WAIT,
   FLYING
+  //, LOG
 }
 class Game {
   GameState currentState = GameState.WAIT;
@@ -69,7 +71,7 @@ class Game {
   
   void update(double dt) {
     for (Balloon b in balloons) {
-      // Wait to start with some
+      // Wait to start with some balloons
       if (b.startTimer > 0) {
         b.startTimer -= dt;
         continue;        
@@ -85,6 +87,9 @@ class Game {
         if (b.moveTimer <= 0.0) {
           b.moveTimer = 0.0;
           explodedBalloons.add(b.position);
+          // TODO: Satisfaction based on kills
+          gameData.peopleSatisfaction += 0.01;
+          gameData.leaderSatisfaction += 0.01;
         }
       }
       
@@ -101,22 +106,44 @@ class Game {
     
     if (currentState == GameState.FLYING) {
       if (balloons.length == 0) {
+        // Calculate terror level - increases more towards end
+        gameData.terrorLevel += explodedBalloons.length * 0.01;
+        gameData.terrorLevel *= 0.8;
+        // TODO: Log state
+        
+        //gameData.peopleSatisfaction += gameData.peopleSatisfactionChange;
+        //gameData.leaderSatisfaction += gameData.leaderSatisfactionChange;
         currentState = GameState.WAIT;
       }
     }
+    
+    // Calculate preview changes to people & leader satisfaction
+    // People satisfaction: lower the more balloons you create, more closer to the end.
+    gameData.peopleSatisfactionChange = -0.001 * (gameData.balloonsToCreate + (monthsLeft / START_MONTHS_LEFT) * 10.0);
+    // Leader satisfaction: lower with time, lowers more closer to the end
+    gameData.leaderSatisfactionChange = -1.0 / (START_MONTHS_LEFT / 2.0);
+
+    //gameData.peopleSatisfaction -= 0.0012 * (numBalloons + monthsLeft);
+    // TODO: Leader satisfaction drops to 0 after half the time of drops with no bombs 
+    //gameData.leaderSatisfaction -= 1.0 / (START_MONTHS_LEFT / 2.0);
+
     draw(dt);
     
     var text = 'Current state: ' + currentState.toString();
-
     context.fillStyle = "black";
     context.font = "24px Roboto";
     var dateMetrics = context.measureText(text);
-    var offset = 20;
+    var offset = 40;
     context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset);
+    text = 'People satisfaction: ' + gameData.peopleSatisfaction.toString();
+    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset * 2);
+    text = 'Leader satisfaction: ' + gameData.leaderSatisfaction.toString();
+    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset * 3);
+    text = 'Terror level: ' + gameData.terrorLevel.toString();
+    context.fillText(text, context.canvas.width / 2 - dateMetrics.width / 2, dateMetrics.fontBoundingBoxAscent + offset * 4);
   }
   
   void keyPress(KeyboardEvent e) {
-    //print(e.keyCode.toString());
     if (e.keyCode == 113) {
       // Increase balloons
       gameData.balloonsToCreate++;
@@ -165,13 +192,9 @@ class Game {
         balloonSprite.draw(b.position.x, b.position.y, 32 * b.scale, 64 * b.scale);
       }
     });
-    
-    
-    // TODO: Do this in update
-    double previewSatisfaction = 1.0;//gameData.peopleSatisfaction - 0.012 * (numBalloons + monthsLeft);
 
     // Draw UI
-    ui.draw(dt, previewSatisfaction);
+    ui.draw(dt);
   }
   
   void incrementDate() {
@@ -185,6 +208,7 @@ class Game {
       for (int i = 0; i < gameData.balloonsToLaunch; i++) {
         // Start positions
         Vector2 startPosition = launchAreaPosition + new Vector2(rand.nextInt(launchAreaSize.x), rand.nextInt(launchAreaSize.y));
+        // TODO: Bigger target area - landing outside fails
         Vector2 targetPosition = targetAreaPosition + new Vector2(rand.nextInt(targetAreaSize.x), rand.nextInt(targetAreaSize.y));
         
         double startOffsetTime = rand.nextDouble() * 0.6;
@@ -200,7 +224,8 @@ class Game {
     if (gameData.balloonsToCreate > 0) {
       // Create balloons
       gameData.balloonsToLaunch = gameData.balloonsToCreate;
-      gameData.balloonsToCreate = 0;
+      gameData.peopleSatisfaction += gameData.peopleSatisfactionChange;
+      gameData.peopleSatisfactionChange = 0.0;
     }
     
     // Pass time
@@ -212,16 +237,18 @@ class Game {
     
     ui.setDate(year, month);
     monthsLeft--;
+    
+    gameData.leaderSatisfaction += gameData.leaderSatisfactionChange;
     if (monthsLeft == 0) {
       print('you lose, months over');
     }
-    
-    // TODO: Tweak, less months left increases satisfaction drop
-//    gameData.peopleSatisfaction -= 0.0012 * (numBalloons + monthsLeft);
-    print('peopleSatisfaction: ${gameData.peopleSatisfaction}');
-    // TODO: Leader satisfaction drops to 0 after half the time of drops with no bombs 
-    gameData.leaderSatisfaction -= 1.0 / (START_MONTHS_LEFT / 2.0);
-    print('leaderSatisfaction: ${gameData.leaderSatisfaction}');
+//    
+//    // TODO: Tweak, less months left increases satisfaction drop
+////    gameData.peopleSatisfaction -= 0.0012 * (numBalloons + monthsLeft);
+//    print('peopleSatisfaction: ${gameData.peopleSatisfaction}');
+//    // TODO: Leader satisfaction drops to 0 after half the time of drops with no bombs 
+//    gameData.leaderSatisfaction -= 1.0 / (START_MONTHS_LEFT / 2.0);
+//    print('leaderSatisfaction: ${gameData.leaderSatisfaction}');
 
     // TODO: Some sort of log
     currentState = GameState.FLYING;

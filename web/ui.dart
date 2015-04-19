@@ -15,7 +15,7 @@ class UI {
   LabelElement numBalloonsLabel;
   UI(this.canvas, this.gameData);
   
-  void draw(double dt, double satisfaction) {
+  void draw(double dt) {
     var context = canvas.context2D;
     context.fillStyle = 'blue';
     context.rect(0, 0, 10, 100);
@@ -24,7 +24,7 @@ class UI {
     context.globalAlpha = 0.5;
     context.fillRect(0, 25, 9, 75);
     context.globalAlpha = 1.0;
-    var height = 100 * satisfaction;
+    var height = 100 * 0.5;
     context.fillRect(0, 100 - height, 9, height);
     
     context.fillStyle = "black";
